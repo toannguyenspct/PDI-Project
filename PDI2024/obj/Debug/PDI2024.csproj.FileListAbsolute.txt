@@ -51,12 +51,17 @@ D:\2023\PDI Project\PDI2024\PDI2024\bin\roslyn\vbc.rsp
 D:\2023\PDI Project\PDI2024\PDI2024\bin\roslyn\VBCSCompiler.exe
 D:\2023\PDI Project\PDI2024\PDI2024\bin\roslyn\VBCSCompiler.exe.config
 D:\2023\PDI Project\PDI2024\PDI2024\bin\Antlr3.Runtime.dll
+D:\2023\PDI Project\PDI2024\PDI2024\bin\EPPlus.dll
+D:\2023\PDI Project\PDI2024\PDI2024\bin\EPPlus.Interfaces.dll
+D:\2023\PDI Project\PDI2024\PDI2024\bin\EPPlus.System.Drawing.dll
 D:\2023\PDI Project\PDI2024\PDI2024\bin\Microsoft.Bcl.AsyncInterfaces.dll
 D:\2023\PDI Project\PDI2024\PDI2024\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
+D:\2023\PDI Project\PDI2024\PDI2024\bin\Microsoft.IO.RecyclableMemoryStream.dll
 D:\2023\PDI Project\PDI2024\PDI2024\bin\Microsoft.Web.Infrastructure.dll
 D:\2023\PDI Project\PDI2024\PDI2024\bin\Newtonsoft.Json.dll
 D:\2023\PDI Project\PDI2024\PDI2024\bin\Oracle.ManagedDataAccess.dll
 D:\2023\PDI Project\PDI2024\PDI2024\bin\System.Buffers.dll
+D:\2023\PDI Project\PDI2024\PDI2024\bin\System.ComponentModel.Annotations.dll
 D:\2023\PDI Project\PDI2024\PDI2024\bin\System.Formats.Asn1.dll
 D:\2023\PDI Project\PDI2024\PDI2024\bin\System.Memory.dll
 D:\2023\PDI Project\PDI2024\PDI2024\bin\System.Numerics.Vectors.dll
@@ -73,7 +78,9 @@ D:\2023\PDI Project\PDI2024\PDI2024\bin\System.Web.WebPages.Deployment.dll
 D:\2023\PDI Project\PDI2024\PDI2024\bin\System.Web.WebPages.dll
 D:\2023\PDI Project\PDI2024\PDI2024\bin\System.Web.WebPages.Razor.dll
 D:\2023\PDI Project\PDI2024\PDI2024\bin\WebGrease.dll
+D:\2023\PDI Project\PDI2024\PDI2024\bin\EPPlus.xml
 D:\2023\PDI Project\PDI2024\PDI2024\bin\Microsoft.Bcl.AsyncInterfaces.xml
+D:\2023\PDI Project\PDI2024\PDI2024\bin\Microsoft.IO.RecyclableMemoryStream.xml
 D:\2023\PDI Project\PDI2024\PDI2024\bin\System.Buffers.xml
 D:\2023\PDI Project\PDI2024\PDI2024\bin\System.Formats.Asn1.xml
 D:\2023\PDI Project\PDI2024\PDI2024\bin\System.Memory.xml
@@ -93,8 +100,8 @@ D:\2023\PDI Project\PDI2024\PDI2024\bin\System.Web.WebPages.Razor.xml
 D:\2023\PDI Project\PDI2024\PDI2024\bin\Newtonsoft.Json.xml
 D:\2023\PDI Project\PDI2024\PDI2024\bin\Antlr3.Runtime.pdb
 D:\2023\PDI Project\PDI2024\PDI2024\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
-D:\2023\PDI Project\PDI2024\PDI2024\obj\Debug\PDI2024.csproj.AssemblyReference.cache
 D:\2023\PDI Project\PDI2024\PDI2024\obj\Debug\PDI2024.csproj.CoreCompileInputs.cache
 D:\2023\PDI Project\PDI2024\PDI2024\obj\Debug\PDI2024.csproj.CopyComplete
 D:\2023\PDI Project\PDI2024\PDI2024\obj\Debug\PDI2024.dll
 D:\2023\PDI Project\PDI2024\PDI2024\obj\Debug\PDI2024.pdb
+D:\2023\PDI Project\PDI2024\PDI2024\obj\Debug\PDI2024.csproj.AssemblyReference.cache

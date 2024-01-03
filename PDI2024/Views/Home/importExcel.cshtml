@@ -1,0 +1,16 @@
+﻿@{
+    ViewBag.Title = "Excel IM/EX";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model PDI2024.Models.importReceive
+<main class="content-wrapper">
+
+
+    @using (Html.BeginForm("importExcel", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <input type="file" name="file" />
+        <input type="submit" value="Import" />
+    }
+
+
+</main>

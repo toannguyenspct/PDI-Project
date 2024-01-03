@@ -5,6 +5,8 @@ using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using PDI2024.Models;
+using OfficeOpenXml;
 
 namespace PDI2024.Controllers
 {
@@ -53,5 +55,59 @@ namespace PDI2024.Controllers
             }
             return null;
         }
+
+        public ActionResult importExcel()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult importExcel(HttpPostedFileBase file)
+        {
+            if (file != null && file.ContentLength > 0)
+            {
+                List<Vehicle> excelDataList = new List<Vehicle>();
+                //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(file.InputStream))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+                    var rowCount = worksheet.Dimension.Rows;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        excelDataList.Add(new Vehicle
+                        {
+                            VEHICLEID = worksheet.Cells[row, 1].Value.ToString(),
+                            LOCATION = worksheet.Cells[row, 2].Value.ToString(),
+                            REMARK = worksheet.Cells[row, 3].Value.ToString(),
+                            // Map các cột khác nếu cần
+                        });
+                    }
+                }
+                return View("importEdit", excelDataList);
+            }
+
+            return View();
+        }
+
+        public ActionResult importEdit()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult importEdit(List<importReceive> editedData)
+        {
+            if (ModelState.IsValid)
+            {
+                // Your save logic here
+
+                // Redirect or return a view accordingly
+            }
+
+            // If ModelState is not valid, return the view with validation errors
+            return View(editedData);
+        }
+
+
     }
 }
