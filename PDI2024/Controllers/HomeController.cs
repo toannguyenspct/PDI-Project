@@ -12,6 +12,9 @@ namespace PDI2024.Controllers
         {
             return View();
         }
-
+        public ActionResult yardLayout()
+        {
+            return View();
+        }
     }
 }
