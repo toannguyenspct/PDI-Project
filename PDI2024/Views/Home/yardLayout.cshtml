@@ -66,6 +66,9 @@
             </div>
         </div>
     </div>
+    <div class="info-popup" id="infoPopup">
+        <div id="infoContent"></div>
+    </div>
     <div class="parking-lot">
         <!-- 18 17-->
         <div class="parking-column">
@@ -2300,3 +2303,148 @@
         <!-- Thêm các cột và hàng khác theo nhu cầu của bạn -->
     </div>
 </main>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+        $(document).ready(function (event) {
+           /* event.preventDefault();*/
+           
+            $.ajax({
+                /* async: true,*/
+                type: 'POST',
+                url: '/home/yardFullds',
+                data: {},
+                /* data: 'SOBILL=' + bill,*/
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json",
+
+                success: function (data) {
+                    var locationsFromDatabase = [];
+                    //var dataReturn = data[0].LOCATION;
+                    for (i = 0; i < Object.keys(data).length; i++) {
+                        locationsFromDatabase.push(data[i]["LOCATION"]);
+                    }
+                    $(".parking-spot").each(function () {
+                        var dataValue = $(this).parent().attr("data-value");
+
+                        if (locationsFromDatabase.includes(dataValue)) {
+                            $(this).css("background-color", "red");
+                        }
+                    });
+                 /*   return false;*/
+                },
+
+            });
+            // Lấy danh sách các location từ cơ sở dữ liệu (có thể từ code-behind hoặc thông qua một API)
+            //var locationsFromDatabase = ["PDA1859", "PDA1759", "PDA1858", "PDA1758", "PDA1857", "PDA1757", "PDA1856", "PDA1756", "PDA1855", "PDA1755"];
+
+            // Duyệt qua mỗi ô parking-spot và kiểm tra xem data-value có trong danh sách location hay không
+
+        });
+</script>
+
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Lấy tất cả các thẻ <a>
+            var links = document.querySelectorAll('a');
+
+            // Thêm sự kiện mouseover cho mỗi thẻ <a>
+            links.forEach(function (link) {
+                link.addEventListener('contextmenu', function (event) {
+                    //mouseover re chuot vao
+                    // Lấy giá trị của thuộc tính data-value
+                    event.preventDefault();
+                    var linkValue = link.getAttribute('data-value');
+
+                    // Gọi controller và xử lý dữ liệu trả về
+                    fetchDataFromController(linkValue, event);
+
+                });
+                //link.addEventListener("mouseout", function () {
+                //    hideInfoPopup();
+                //});
+            });
+
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") {
+                    hideInfoPopup();
+                }
+            });
+        //document.addEventListener('DOMContentLoaded', function () {
+        //    // Lấy tất cả các thẻ <a>
+        //    var links = document.querySelectorAll('a');
+
+        //    // Thêm sự kiện mouseover cho mỗi thẻ <a>
+        //    links.forEach(function (link) {
+        //        link.addEventListener('contextmenu', function (event) {
+        //            event.preventDefault();
+        //            // Lấy giá trị của thuộc tính data-value
+        //            var linkValue = link.getAttribute('data-value');
+
+        //            // Gọi controller và xử lý dữ liệu trả về
+        //            fetchDataFromController(linkValue, event);
+
+        //        });
+        //        link.addEventListener("mouseout", function () {
+        //            hideInfoPopup();
+        //        });
+        //    });
+            // Hàm để gọi controller và xử lý dữ liệu trả về
+            function fetchDataFromController(value, event) {
+                if (value != null) {
+                    // Sử dụng Ajax để gọi controller (giả định sử dụng fetch)
+                    $.ajax({
+                        /* async: true,*/
+                        type: 'POST',
+                        url: '/home/yardFulldsID',
+                        data: { value: value },
+                        /* data: 'SOBILL=' + bill,*/
+                        //contentType: "application/json; charset=utf-8",
+                        //dataType: "json",
+
+                        success: function (data) {
+                            if ((data === '') || (data === null) || (data === '[]') || (data === "")) {
+
+                            } else {
+                                const clickedSpot = event.target.closest(".parking-spot");
+                                if (clickedSpot) {
+                                    const spotRect = clickedSpot.getBoundingClientRect();
+                                    const spotX = event.clientX - spotRect.width / 2;
+                                    const spotY = event.clientY - spotRect.height / 2;
+                                    const mouseX = event.clientX;
+                                    const mouseY = event.clientY;
+
+                                    displayInfoPopup(data[0].VEHICLEID, data[0].LOCATION, data[0].REMARK, spotX, spotY);
+                                }
+                            }
+                        },
+
+                    });
+
+                    //alert(value);
+                }
+
+            }
+        });
+
+        function hideInfoPopup() {
+            const infoPopup = document.getElementById("infoPopup");
+            infoPopup.style.display = "none";
+        }
+        function displayInfoPopup(VEHICLEID, LOCATION, REMARK, mouseX, mouseY) {
+            const infoPopup = document.getElementById("infoPopup");
+            const infoContent = document.getElementById("infoContent");
+            infoPopup.style.left = mouseX + "px";
+            infoPopup.style.top = mouseY + "px";
+            //const infoPopup = document.getElementById("infoPopup");
+            //const infoContent = document.getElementById("infoContent");
+            infoContent.innerHTML = `
+            <strong>Vehicle ID:</strong> ${VEHICLEID}<br>
+            <strong>LOCATION:</strong> ${LOCATION}<br>
+            <strong>REMARK:</strong> ${REMARK}<br>
+
+            <!-- Thêm thông tin khác nếu cần -->
+        `;
+
+            infoPopup.style.display = "block";
+        }
+</script>
