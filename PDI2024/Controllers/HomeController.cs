@@ -35,10 +35,10 @@ namespace PDI2024.Controllers
         public ActionResult yardFullds()
         {
             OracleDBHelper dbHelper = new OracleDBHelper(connectionString);
-            var x = dbHelper.getVehicle();
-            x.ToString().ToList();
+            var data = dbHelper.getVehicle();
+            data.ToString().ToList();
             string json;
-            json = JsonConvert.SerializeObject(x);
+            json = JsonConvert.SerializeObject(data);
             return Content(json, "application/json");
         }
         [HttpPost]
@@ -73,15 +73,24 @@ namespace PDI2024.Controllers
                     var worksheet = package.Workbook.Worksheets[0];
                     var rowCount = worksheet.Dimension.Rows;
 
-                    for (int row = 2; row <= rowCount; row++)
+                    for (int row = 8; row <= rowCount; row++)
                     {
+                        var vehicleIdCell = worksheet.Cells[row, 3].Value;
+                        var locationCell = worksheet.Cells[row, 8].Value;
+                        if (vehicleIdCell == null || locationCell == null)
+                        {
+                            // Nếu bất kỳ ô nào ở cột 3 hoặc 8 là null, dừng lại
+                            break;
+                        }
                         excelDataList.Add(new Vehicle
                         {
-                            VEHICLEID = worksheet.Cells[row, 1].Value.ToString(),
-                            LOCATION = worksheet.Cells[row, 2].Value.ToString(),
-                            REMARK = worksheet.Cells[row, 3].Value.ToString(),
+                            VEHICLEID = vehicleIdCell.ToString(),
+                            LOCATION = locationCell.ToString(),
+                            REMARK = (worksheet.Cells[row, 14].Value ?? string.Empty).ToString(),
+                            //REMARK = (worksheet.Cells[row, 14].Value.ToString() == null || worksheet.Cells[row, 14].Value.ToString() == "") ? worksheet.Cells[row, 14].Value.ToString() : "",
                             // Map các cột khác nếu cần
                         });
+
                     }
                 }
                 return View("importEdit", excelDataList);
@@ -95,12 +104,23 @@ namespace PDI2024.Controllers
             return View();
         }
         [HttpPost]
-        public ActionResult importEdit(List<importReceive> editedData)
+        public ActionResult importEdit(List<Vehicle> editedData)
         {
+
             if (ModelState.IsValid)
             {
-                // Your save logic here
+                OracleDBHelper dbHelper = new OracleDBHelper(connectionString);
+                foreach (var dataItem in editedData)
+                {
 
+                    var VEHICLEID = dataItem.VEHICLEID;
+                    var LOCATION = dataItem.LOCATION;
+                    var REMARK = dataItem.REMARK;
+                    dbHelper.insertVehicle(VEHICLEID, LOCATION, REMARK,1);
+                    // Perform actions or validations as needed
+                }
+                // Your save logic here
+                return View(editedData);
                 // Redirect or return a view accordingly
             }
 

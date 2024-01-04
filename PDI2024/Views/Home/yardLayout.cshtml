@@ -75,6 +75,11 @@
         <div id="infoContent"></div>
     </div>
     <div class="parking-lot">
+        <div class="parking-column">
+            <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;">
+                <canvas id="parking-chart" width="400" height="400"></canvas>
+            </div>
+        </div>
         <!-- 18 17-->
         <div class="parking-column">
             <div class="parking-row">
@@ -126,20 +131,20 @@
                 <a href="" data-value="PDA1748"><div class="parking-spot">A17.48</div></a>
             </div>
             <div class="parking-row">
-                <div class="parking-spot" style="background: grey;">A18.47</div>
-                <div class="parking-spot" style="background: grey;">A17.47</div>
+                <div class="parking-spot" style="background: SaddleBrown;">A18.47</div>
+                <div class="parking-spot" style="background: SaddleBrown;">A17.47</div>
             </div>
             <div class="parking-row">
-                <div class="parking-spot" style="background: grey;">A18.46</div>
-                <div class="parking-spot" style="background: grey;">A17.46</div>
+                <div class="parking-spot" style="background: SaddleBrown;">A18.46</div>
+                <div class="parking-spot" style="background: SaddleBrown;">A17.46</div>
             </div>
             <div class="parking-row">
-                <div class="parking-spot" style="background: grey;">A18.45</div>
-                <div class="parking-spot" style="background: grey;">A17.45</div>
+                <div class="parking-spot" style="background: SaddleBrown;">A18.45</div>
+                <div class="parking-spot" style="background: SaddleBrown;">A17.45</div>
             </div>
             <div class="parking-row">
-                <div class="parking-spot" style="background: grey;">A18.44</div>
-                <div class="parking-spot" style="background: grey;">A17.44</div>
+                <div class="parking-spot" style="background: SaddleBrown;">A18.44</div>
+                <div class="parking-spot" style="background: SaddleBrown;">A17.44</div>
             </div>
         </div>
 
@@ -416,11 +421,11 @@
                 <a href="" data-value="PDA1562"><div class="parking-spot">A15.62</div></a>
             </div>
             <div class="parking-row">
-                <div class="parking-spot" style="background: grey;">A16.61</div>
+                <div class="parking-spot" style="background: SaddleBrown;">A16.61</div>
                 <a href="" data-value="PDA1561"><div class="parking-spot">A15.61</div></a>
             </div>
             <div class="parking-row">
-                <div class="parking-spot" style="background: grey;">A16.60</div>
+                <div class="parking-spot" style="background: SaddleBrown;">A16.60</div>
                 <a href="" data-value="PDA1560"><div class="parking-spot">A15.60</div></a>
             </div>
 
@@ -2309,6 +2314,8 @@
     </div>
 </main>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="~/Assets/js/link/chart.min.js"></script>
+@*<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>*@
 <script>
     $(document).ready(function (event) {
         /* event.preventDefault();*/
@@ -2322,19 +2329,153 @@
             //contentType: "application/json; charset=utf-8",
             //dataType: "json",
 
-            success: function (data) {
-                var locationsFromDatabase = [];
-                //var dataReturn = data[0].LOCATION;
-                for (i = 0; i < Object.keys(data).length; i++) {
-                    locationsFromDatabase.push(data[i]["LOCATION"]);
-                }
-                $(".parking-spot").each(function () {
-                    var dataValue = $(this).parent().attr("data-value");
+            success: function (dataReturn) {
+                var statusCounts = dataReturn.reduce(function (acc, vehicle) {
+                    acc[vehicle['STATUS']] = (acc[vehicle['STATUS']] || 0) + 1;
+                    return acc;
+                }, {});
+                //tinh tong cac value
+                var totalValue = Object.values(statusCounts).reduce((a, b) => a + b, 0);
+                //set sum slot yard
+                var sumslot = 70;
+                //add new
+                var newStatus = '4';
+                statusCounts = Object.assign({}, statusCounts, { [newStatus]: sumslot - totalValue });
 
-                    if (locationsFromDatabase.includes(dataValue)) {
-                        $(this).css("background-color", "red");
+
+                var statusLabels = {
+                    1: 'Import Plan : ' + Object.values(statusCounts)[0],
+                    2: 'In Yard : ' + Object.values(statusCounts)[1],
+                    3: 'Assigned Plan : ' + Object.values(statusCounts)[2],
+                    4: 'Vacant Position : ' + Object.values(statusCounts)[3]
+                    // Thêm bất kỳ mapping nào khác nếu cần
+                };
+                var chartData = {
+                    labels: Object.values(statusLabels),
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['yellow', 'red', 'gray', 'Gainsboro']
+                    }]
+                };
+                //var chartOptions = {
+                //    maintainAspectRatio: false,
+                //    responsive: true
+                //};
+
+                // Tạo biểu đồ tròn
+                var parkingChart = new Chart(document.getElementById('parking-chart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: chartData,
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        plugins: {
+                            datalabels: {
+                                color: '#fff',
+                                formatter: (value, context) => {
+                                    let percentage = ((value * 100) / context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0)).toFixed(2);
+                                    return `${context.label} (${percentage}%)`;
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (tooltipItem, dataReturn) {
+                                        // Lấy index của phần tử được hover
+                                        var index = tooltipItem.dataIndex;
+                                        var sumall = Object.values(statusCounts).reduce((a, b) => a + b, 0);
+                                        // Lấy giá trị tương ứng từ mảng Object.values(statusCounts)
+                                        var hoveredValue = Object.values(statusCounts)[index];
+                                        var tyle = hoveredValue * 100 / sumslot;
+                                        // Hiển thị thông báo khi rê chuột vào
+                                        return `Sum: ${hoveredValue} Unit - ${parseInt(tyle)}%`;
+                                    }
+                                }
+                            }
+                        }
                     }
                 });
+
+                // hien thi 
+                $(".parking-spot").each(function () {
+                    var location = $(this).parent().attr("data-value");
+                    var vehicleData = dataReturn.find(function (data) {
+                        return data.LOCATION === location;
+                    });
+
+                    if (vehicleData) {
+                        var status = vehicleData["STATUS"];
+                        switch (status) {
+                            case "1":
+                                $(this).css("background-color", "yellow");
+                                break;
+                            case "2":
+                                $(this).css("background-color", "red");
+                                break;
+                            case "3":
+                                $(this).css("background-color", "gray");
+                                break;
+                            default:
+                                // Đối với trạng thái khác, bạn có thể thiết lập màu sắc mặc định hoặc thực hiện xử lý khác.
+                                break;
+                        }
+
+                        // Hiển thị thông tin khi rê chuột vào
+                        $(this).on("contextmenu", function (event) {
+                            event.preventDefault();
+                            // Tạo hoặc cập nhật một phần tử div cho thông tin
+                            const infoPopup = document.getElementById("infoPopup");
+                            const infoContent = document.getElementById("infoContent");
+                            const clickedSpot = event.target.closest(".parking-spot");
+                            if (clickedSpot) {
+                                const spotRect = clickedSpot.getBoundingClientRect();
+                                const spotX = event.clientX - spotRect.width / 2;
+                                const spotY = event.clientY - spotRect.height / 2;
+                                infoPopup.style.left = spotX + "px";
+                                infoPopup.style.top = spotY + "px";
+                            }
+                            infoContent.innerHTML = `
+                                <strong>Vehicle ID:</strong> ${vehicleData.VEHICLEID}<br>
+                                <strong>LOCATION:</strong> ${vehicleData.LOCATION}<br>
+                                <strong>REMARK:</strong> ${vehicleData.REMARK}<br>
+                                <strong>REMARK:</strong> ${vehicleData.STATUS}<br>
+
+                                <!-- Thêm thông tin khác nếu cần -->
+                            `;
+
+                            infoPopup.style.display = "block";
+                            //var infoDiv = $("<div>").addClass("info-div").html(
+                            //    "Location: " + vehicleData.LOCATION + "<br>" +
+                            //    "Vehicle ID: " + vehicleData.VEHICLEID + "<br>" +
+                            //    "Remark: " + vehicleData.REMARK
+                            //);
+
+                            // Hiển thị phần tử div thông tin
+                            /*$(this).append(infoDiv);*/
+                            //if (event.key === "Escape") {
+                            //    infoPopup.style.display = "none";
+                            //}
+                        });
+
+                        // Ẩn thông tin khi rê chuột ra khỏi
+                        //$(this).on("mouseout", function () {
+                        //    // Xóa phần tử div thông tin
+                        //    /*$(this).find(".info-div").remove();*/
+                        //    /*infoPopup.style.display = "none";*/
+                        //});
+                    }
+                });
+                //var locationsFromDatabase = [];
+                ////var dataReturn = data[0].LOCATION;
+                //for (i = 0; i < Object.keys(dataReturn).length; i++) {
+                //    locationsFromDatabase.push(dataReturn[i]["LOCATION"]);
+                //}
+                //$(".parking-spot").each(function () {
+                //    var dataValue = $(this).parent().attr("data-value");
+
+                //    if (locationsFromDatabase.includes(dataValue)) {
+                //        $(this).css("background-color", "red");
+                //    }
+                //});
                 /*   return false;*/
             },
 
@@ -2343,113 +2484,138 @@
         //var locationsFromDatabase = ["PDA1859", "PDA1759", "PDA1858", "PDA1758", "PDA1857", "PDA1757", "PDA1856", "PDA1756", "PDA1855", "PDA1755"];
 
         // Duyệt qua mỗi ô parking-spot và kiểm tra xem data-value có trong danh sách location hay không
-
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Lấy tất cả các thẻ <a>
-        var links = document.querySelectorAll('a');
-
-        // Thêm sự kiện mouseover cho mỗi thẻ <a>
-        links.forEach(function (link) {
-            link.addEventListener('contextmenu', function (event) {
-                //mouseover re chuot vao
-                // Lấy giá trị của thuộc tính data-value
-                event.preventDefault();
-                var linkValue = link.getAttribute('data-value');
-
-                // Gọi controller và xử lý dữ liệu trả về
-                fetchDataFromController(linkValue, event);
-
-            });
-            //link.addEventListener("mouseout", function () {
-            //    hideInfoPopup();
-            //});
-        });
-
-        document.addEventListener("keydown", function (event) {
-            if (event.key === "Escape") {
-                hideInfoPopup();
+        $(document).on("keydown", function (e) {
+            if (e.key === "Escape") {
+                infoPopup.style.display = "none"; // Ẩn tất cả các phần tử .info-div
             }
         });
-        //document.addEventListener('DOMContentLoaded', function () {
-        //    // Lấy tất cả các thẻ <a>
-        //    var links = document.querySelectorAll('a');
+    });
+</script>
+@*<script>
+    var parkingCanvas = document.getElementById('parking-chart').getContext('2d');
 
-        //    // Thêm sự kiện mouseover cho mỗi thẻ <a>
-        //    links.forEach(function (link) {
-        //        link.addEventListener('contextmenu', function (event) {
-        //            event.preventDefault();
-        //            // Lấy giá trị của thuộc tính data-value
-        //            var linkValue = link.getAttribute('data-value');
+    var parkingData = {
+        labels: ['Xe trong bãi', 'Xe chuẩn bị vào bãi', 'Xe chuẩn bị giao', 'Chỗ trống'],
+        datasets: [{
+            data: [25, 15, 10, 50],
+            backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384', '#4CAF50']
+        }]
+    };
 
-        //            // Gọi controller và xử lý dữ liệu trả về
-        //            fetchDataFromController(linkValue, event);
+    var parkingOptions = {
+        maintainAspectRatio: false,
+        responsive: true
+    };
 
-        //        });
-        //        link.addEventListener("mouseout", function () {
-        //            hideInfoPopup();
-        //        });
-        //    });
-        // Hàm để gọi controller và xử lý dữ liệu trả về
-        function fetchDataFromController(value, event) {
-            if (value != null) {
-                // Sử dụng Ajax để gọi controller (giả định sử dụng fetch)
-                $.ajax({
-                    /* async: true,*/
-                    type: 'POST',
-                    url: '/home/yardFulldsID',
-                    data: { value: value },
-                    /* data: 'SOBILL=' + bill,*/
-                    //contentType: "application/json; charset=utf-8",
-                    //dataType: "json",
+    var parkingChart = new Chart(parkingCanvas, {
+        type: 'doughnut',
+        data: parkingData,
+        options: parkingOptions
+    });
+</script>*@
+@*<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Lấy tất cả các thẻ <a>
+            var links = document.querySelectorAll('a');
 
-                    success: function (data) {
-                        if ((data === '') || (data === null) || (data === '[]') || (data === "")) {
+            // Thêm sự kiện mouseover cho mỗi thẻ <a>
+            links.forEach(function (link) {
+                link.addEventListener('contextmenu', function (event) {
+                    //mouseover re chuot vao
+                    // Lấy giá trị của thuộc tính data-value
+                    event.preventDefault();
+                    var linkValue = link.getAttribute('data-value');
 
-                        } else {
-                            const clickedSpot = event.target.closest(".parking-spot");
-                            if (clickedSpot) {
-                                const spotRect = clickedSpot.getBoundingClientRect();
-                                const spotX = event.clientX - spotRect.width / 2;
-                                const spotY = event.clientY - spotRect.height / 2;
-                                const mouseX = event.clientX;
-                                const mouseY = event.clientY;
-
-                                displayInfoPopup(data[0].VEHICLEID, data[0].LOCATION, data[0].REMARK, spotX, spotY);
-                            }
-                        }
-                    },
+                    // Gọi controller và xử lý dữ liệu trả về
+                    fetchDataFromController(linkValue, event);
 
                 });
+                //link.addEventListener("mouseout", function () {
+                //    hideInfoPopup();
+                //});
+            });
 
-                //alert(value);
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") {
+                    hideInfoPopup();
+                }
+            });
+            //document.addEventListener('DOMContentLoaded', function () {
+            //    // Lấy tất cả các thẻ <a>
+            //    var links = document.querySelectorAll('a');
+
+            //    // Thêm sự kiện mouseover cho mỗi thẻ <a>
+            //    links.forEach(function (link) {
+            //        link.addEventListener('contextmenu', function (event) {
+            //            event.preventDefault();
+            //            // Lấy giá trị của thuộc tính data-value
+            //            var linkValue = link.getAttribute('data-value');
+
+            //            // Gọi controller và xử lý dữ liệu trả về
+            //            fetchDataFromController(linkValue, event);
+
+            //        });
+            //        link.addEventListener("mouseout", function () {
+            //            hideInfoPopup();
+            //        });
+            //    });
+            // Hàm để gọi controller và xử lý dữ liệu trả về
+            function fetchDataFromController(value, event) {
+                if (value != null) {
+                    // Sử dụng Ajax để gọi controller (giả định sử dụng fetch)
+                    $.ajax({
+                        /* async: true,*/
+                        type: 'POST',
+                        url: '/home/yardFulldsID',
+                        data: { value: value },
+                        /* data: 'SOBILL=' + bill,*/
+                        //contentType: "application/json; charset=utf-8",
+                        //dataType: "json",
+
+                        success: function (data) {
+                            if ((data === '') || (data === null) || (data === '[]') || (data === "")) {
+
+                            } else {
+                                const clickedSpot = event.target.closest(".parking-spot");
+                                if (clickedSpot) {
+                                    const spotRect = clickedSpot.getBoundingClientRect();
+                                    const spotX = event.clientX - spotRect.width / 2;
+                                    const spotY = event.clientY - spotRect.height / 2;
+                                    const mouseX = event.clientX;
+                                    const mouseY = event.clientY;
+
+                                    displayInfoPopup(data[0].VEHICLEID, data[0].LOCATION, data[0].REMARK, spotX, spotY);
+                                }
+                            }
+                        },
+
+                    });
+
+                    //alert(value);
+                }
+
             }
+        });
 
+        function hideInfoPopup() {
+            const infoPopup = document.getElementById("infoPopup");
+            infoPopup.style.display = "none";
         }
-    });
+        function displayInfoPopup(VEHICLEID, LOCATION, REMARK, mouseX, mouseY) {
+            const infoPopup = document.getElementById("infoPopup");
+            const infoContent = document.getElementById("infoContent");
+            infoPopup.style.left = mouseX + "px";
+            infoPopup.style.top = mouseY + "px";
+            //const infoPopup = document.getElementById("infoPopup");
+            //const infoContent = document.getElementById("infoContent");
+            infoContent.innerHTML = `
+                <strong>Vehicle ID:</strong> ${VEHICLEID}<br>
+                <strong>LOCATION:</strong> ${LOCATION}<br>
+                <strong>REMARK:</strong> ${REMARK}<br>
 
-    function hideInfoPopup() {
-        const infoPopup = document.getElementById("infoPopup");
-        infoPopup.style.display = "none";
-    }
-    function displayInfoPopup(VEHICLEID, LOCATION, REMARK, mouseX, mouseY) {
-        const infoPopup = document.getElementById("infoPopup");
-        const infoContent = document.getElementById("infoContent");
-        infoPopup.style.left = mouseX + "px";
-        infoPopup.style.top = mouseY + "px";
-        //const infoPopup = document.getElementById("infoPopup");
-        //const infoContent = document.getElementById("infoContent");
-        infoContent.innerHTML = `
-            <strong>Vehicle ID:</strong> ${VEHICLEID}<br>
-            <strong>LOCATION:</strong> ${LOCATION}<br>
-            <strong>REMARK:</strong> ${REMARK}<br>
+                <!-- Thêm thông tin khác nếu cần -->
+            `;
 
-            <!-- Thêm thông tin khác nếu cần -->
-        `;
-
-        infoPopup.style.display = "block";
-    }
-</script>
+            infoPopup.style.display = "block";
+        }
+    </script>*@

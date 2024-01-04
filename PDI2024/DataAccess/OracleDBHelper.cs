@@ -97,7 +97,7 @@ public class OracleDBHelper
 
         try
         {
-            string query = "select VEHICLEID,LOCATION,REMARK from VEHICLEINFO"; 
+            string query = "select VEHICLEID,LOCATION,REMARK,STATUS from VEHICLEINFO"; 
             using (OracleCommand command = new OracleCommand(query, connection))
             {
                 using (OracleDataReader reader = command.ExecuteReader())
@@ -110,6 +110,7 @@ public class OracleDBHelper
                             VEHICLEID = reader["VEHICLEID"].ToString(),
                             LOCATION = reader["LOCATION"].ToString(),
                             REMARK = reader["REMARK"].ToString(),
+                            STATUS = reader["STATUS"].ToString(),
                             // Thêm các thuộc tính khác tùy thuộc vào cấu trúc bảng
                         };
 
@@ -170,6 +171,62 @@ public class OracleDBHelper
         return Vehicle;
     }
 
+    public void updateVehicle(string vehicleID, string newLocation, string newRemark)
+    {
+        OracleConnection connection = OpenConnection();
+
+        try
+        {
+            string query = "UPDATE VEHICLEINFO SET LOCATION = :newLocation, REMARK = :newRemark WHERE VEHICLEID = :vehicleID";
+
+            using (OracleCommand command = new OracleCommand(query, connection))
+            {
+                command.Parameters.Add(new OracleParameter("newLocation", newLocation));
+                command.Parameters.Add(new OracleParameter("newRemark", newRemark));
+                command.Parameters.Add(new OracleParameter("vehicleID", vehicleID));
+
+                command.ExecuteNonQuery();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error updating vehicle: " + ex.Message);
+            throw ex;
+        }
+        finally
+        {
+            CloseConnection(connection);
+        }
+    }
+
+    public void insertVehicle(string vehicleID, string location, string remark,int STATUS)
+    {
+        OracleConnection connection = OpenConnection();
+
+        try
+        {
+            string query = "INSERT INTO VEHICLEINFO (VEHICLEID, LOCATION, REMARK,STATUS) VALUES (:VEHICLEID, :LOCATION, :REMARK,:STATUS)";
+
+            using (OracleCommand command = new OracleCommand(query, connection))
+            {
+                command.Parameters.Add(new OracleParameter("VEHICLEID", vehicleID));
+                command.Parameters.Add(new OracleParameter("LOCATION", location));
+                command.Parameters.Add(new OracleParameter("REMARK", remark));
+                command.Parameters.Add(new OracleParameter("STATUS", STATUS));
+
+                command.ExecuteNonQuery();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error inserting vehicle: " + ex.Message);
+            throw ex;
+        }
+        finally
+        {
+            CloseConnection(connection);
+        }
+    }
 
 
 

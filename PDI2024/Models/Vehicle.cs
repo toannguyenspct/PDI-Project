@@ -20,5 +20,8 @@ namespace PDI2024.Models
         //[Required(ErrorMessage = "Column1 is required")]
         [DisplayName("User ID2")]
         public string REMARK { get; set; }
+
+        [DisplayName("User ID3")]
+        public string STATUS { get; set; }
     }
 }

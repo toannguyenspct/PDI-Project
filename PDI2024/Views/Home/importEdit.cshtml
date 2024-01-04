@@ -9,6 +9,7 @@
 
     @using (Html.BeginForm("importEdit", "Home", FormMethod.Post))
     {
+        @Html.AntiForgeryToken()
         <table id="excelDataTable" class="display">
             <thead>
                 <tr>
@@ -20,21 +21,21 @@
             <tbody>
                 @for (int i = 0; i < Model.Count; i++)
                 {
-                <tr>
-                    <td>
-                        @Html.TextBoxFor(m => Model[i].VEHICLEID, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(m => Model[i].VEHICLEID)
-                    </td>
-                    <td>
-                        @Html.TextBoxFor(m => Model[i].LOCATION, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(m => Model[i].LOCATION)
-                    </td>
-                    <td>
-                        @Html.TextBoxFor(m => Model[i].REMARK, new { @class = "form-control" })
-                        @*@Html.ValidationMessageFor(m => Model[i].Column2)*@
-                    </td>
-                    <!-- Add validation messages for other columns if needed -->
-                </tr>
+                    <tr>
+                        <td>
+                            @Html.TextBoxFor(m => Model[i].VEHICLEID, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => Model[i].VEHICLEID)
+                        </td>
+                        <td>
+                            @Html.TextBoxFor(m => Model[i].LOCATION, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => Model[i].LOCATION)
+                        </td>
+                        <td>
+                            @Html.TextBoxFor(m => Model[i].REMARK, new { @class = "form-control" })
+                            @*@Html.ValidationMessageFor(m => Model[i].Column2)*@
+                        </td>
+                        <!-- Add validation messages for other columns if needed -->
+                    </tr>
                 }
             </tbody>
         </table>
