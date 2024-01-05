@@ -2385,9 +2385,10 @@
                                         var sumall = Object.values(statusCounts).reduce((a, b) => a + b, 0);
                                         // Lấy giá trị tương ứng từ mảng Object.values(statusCounts)
                                         var hoveredValue = Object.values(statusCounts)[index];
+                                        var namefil = Object.values(statusLabels)[index];
                                         var tyle = hoveredValue * 100 / sumslot;
                                         // Hiển thị thông báo khi rê chuột vào
-                                        return `Sum: ${hoveredValue} Unit - ${parseInt(tyle)}%`;
+                                        return `${namefil} Unit - ${parseInt(tyle)}%`;
                                     }
                                 }
                             }
